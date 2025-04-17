@@ -66,5 +66,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://mern-ecommerce-backend-am0n.onrender.com/api/v1"
+  "proxy": "https://mern-ecommerce-backend-am0n.onrender.com"
 }
