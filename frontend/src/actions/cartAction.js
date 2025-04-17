@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   ADD_TO_CART,
   REMOVE_CART_ITEM,
@@ -7,9 +6,11 @@ import {
   LOAD_CART_ITEMS,
 } from "../constants/cartConstants";
 
+import api from "../utils/axiosInstance";
+
 // Add to Cart
 export const addItemsToCart = (id, quantity) => async (dispatch, getState) => {
-  const { data } = await axios.get(`/api/v1/book/${id}`);
+  const { data } = await api.get(`/book/${id}`);
 
   dispatch({
     type: ADD_TO_CART,
@@ -25,7 +26,7 @@ export const addItemsToCart = (id, quantity) => async (dispatch, getState) => {
 
   const { user } = getState().user;
   if (user) {
-    await axios.post("/api/v1/cart/save", { cartItems: getState().cart.cartItems });
+    await api.post("/cart/save", { cartItems: getState().cart.cartItems });
   }
 
   localStorage.setItem("cartItems", JSON.stringify(getState().cart.cartItems));
@@ -40,7 +41,7 @@ export const removeItemsFromCart = (id) => async (dispatch, getState) => {
 
   const { user } = getState().user;
   if (user) {
-    await axios.post("/api/v1/cart/save", { cartItems: getState().cart.cartItems });
+    await api.post("/cart/save", { cartItems: getState().cart.cartItems });
   }
 
   localStorage.setItem("cartItems", JSON.stringify(getState().cart.cartItems));
@@ -58,7 +59,7 @@ export const saveShippingInfo = (data) => async (dispatch) => {
 
 // Load Cart Items
 export const loadCartItems = (userId) => async (dispatch) => {
-  const { data } = await axios.get(`/api/v1/cart/${userId}`);
+  const { data } = await api.get(`/cart/${userId}`);
 
   dispatch({
     type: LOAD_CART_ITEMS,

@@ -1,5 +1,3 @@
-import axios from "axios";
-
 import {
   ALL_BOOK_FAIL,
   ALL_BOOK_REQUEST,
@@ -28,211 +26,142 @@ import {
   DELETE_REVIEW_REQUEST,
   DELETE_REVIEW_SUCCESS,
   DELETE_REVIEW_FAIL,
-  CLEAR_ERRORS,
 } from "../constants/bookConstants";
 
-// Get All Books
+import api from "../utils/axiosInstance";
+
+// BOOK ACTIONS
 export const getBook =
   (keyword = "", currentPage = 1, price = [0, 25000], category, ratings = 0) =>
   async (dispatch) => {
     try {
       dispatch({ type: ALL_BOOK_REQUEST });
 
-      let link = `/api/v1/books?keyword=${keyword}&page=${currentPage}&price[gte]=${price[0]}&price[lte]=${price[1]}&ratings[gte]=${ratings}`;
-
+      let link = `/books?keyword=${keyword}&page=${currentPage}&price[gte]=${price[0]}&price[lte]=${price[1]}&ratings[gte]=${ratings}`;
       if (category) {
-        link = `/api/v1/books?keyword=${keyword}&page=${currentPage}&price[gte]=${price[0]}&price[lte]=${price[1]}&category=${category}&ratings[gte]=${ratings}`;
+        link += `&category=${category}`;
       }
 
-      const { data } = await axios.get(link);
+      const { data } = await api.get(link);
 
-      dispatch({
-        type: ALL_BOOK_SUCCESS,
-        payload: data,
-      });
+      dispatch({ type: ALL_BOOK_SUCCESS, payload: data });
     } catch (error) {
       dispatch({
         type: ALL_BOOK_FAIL,
-        payload: error.response.data.message,
+        payload: error.response?.data?.message || "Failed to fetch books",
       });
     }
   };
 
-// Get All Books For Admin
 export const getAdminBook = () => async (dispatch) => {
   try {
     dispatch({ type: ADMIN_BOOK_REQUEST });
-
-    const { data } = await axios.get("/api/v1/admin/books");
-
-    dispatch({
-      type: ADMIN_BOOK_SUCCESS,
-      payload: data.books,
-    });
+    const { data } = await api.get("/admin/books");
+    dispatch({ type: ADMIN_BOOK_SUCCESS, payload: data.books });
   } catch (error) {
     dispatch({
       type: ADMIN_BOOK_FAIL,
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Failed to fetch admin books",
     });
   }
 };
 
-// Create Book
 export const createBook = (bookData) => async (dispatch) => {
   try {
     dispatch({ type: NEW_BOOK_REQUEST });
-
-    const config = {
-      headers: { "Content-Type": "application/json" },
-    };
-
-    const { data } = await axios.post(
-      `/api/v1/admin/book/new`,
-      bookData,
-      config
-    );
-
-    dispatch({
-      type: NEW_BOOK_SUCCESS,
-      payload: data,
-    });
+    const config = { headers: { "Content-Type": "application/json" } };
+    const { data } = await api.post("/admin/book/new", bookData, config);
+    dispatch({ type: NEW_BOOK_SUCCESS, payload: data });
   } catch (error) {
     dispatch({
       type: NEW_BOOK_FAIL,
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Book creation failed",
     });
   }
 };
 
-// Update Book
 export const updateBook = (id, bookData) => async (dispatch) => {
   try {
     dispatch({ type: UPDATE_BOOK_REQUEST });
-
-    const config = {
-      headers: { "Content-Type": "application/json" },
-    };
-
-    const { data } = await axios.put(
-      `/api/v1/admin/book/${id}`,
-      bookData,
-      config
-    );
-
-    dispatch({
-      type: UPDATE_BOOK_SUCCESS,
-      payload: data.success,
-    });
+    const config = { headers: { "Content-Type": "application/json" } };
+    const { data } = await api.put(`/admin/book/${id}`, bookData, config);
+    dispatch({ type: UPDATE_BOOK_SUCCESS, payload: data.success });
   } catch (error) {
     dispatch({
       type: UPDATE_BOOK_FAIL,
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Update failed",
     });
   }
 };
 
-// Delete Book
 export const deleteBook = (id) => async (dispatch) => {
   try {
     dispatch({ type: DELETE_BOOK_REQUEST });
-
-    const { data } = await axios.delete(`/api/v1/admin/book/${id}`);
-
-    dispatch({
-      type: DELETE_BOOK_SUCCESS,
-      payload: data.success,
-    });
+    const { data } = await api.delete(`/admin/book/${id}`);
+    dispatch({ type: DELETE_BOOK_SUCCESS, payload: data.success });
   } catch (error) {
     dispatch({
       type: DELETE_BOOK_FAIL,
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Delete failed",
     });
   }
 };
 
-// Get Books Details
 export const getBookDetails = (id) => async (dispatch) => {
   try {
     dispatch({ type: BOOK_DETAILS_REQUEST });
-
-    const { data } = await axios.get(`/api/v1/book/${id}`);
-
-    dispatch({
-      type: BOOK_DETAILS_SUCCESS,
-      payload: data.book,
-    });
+    const { data } = await api.get(`/book/${id}`);
+    dispatch({ type: BOOK_DETAILS_SUCCESS, payload: data.book });
   } catch (error) {
     dispatch({
       type: BOOK_DETAILS_FAIL,
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Failed to fetch book details",
     });
   }
 };
 
-// NEW REVIEW
 export const newReview = (reviewData) => async (dispatch) => {
   try {
     dispatch({ type: NEW_REVIEW_REQUEST });
-
-    const config = {
-      headers: { "Content-Type": "application/json" },
-    };
-
-    const { data } = await axios.put(`/api/v1/review`, reviewData, config);
-
-    dispatch({
-      type: NEW_REVIEW_SUCCESS,
-      payload: data.success,
-    });
+    const config = { headers: { "Content-Type": "application/json" } };
+    const { data } = await api.put(`/review`, reviewData, config);
+    dispatch({ type: NEW_REVIEW_SUCCESS, payload: data.success });
   } catch (error) {
     dispatch({
       type: NEW_REVIEW_FAIL,
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Review submission failed",
     });
   }
 };
 
-// Get All Reviews of a Book
 export const getAllReviews = (id) => async (dispatch) => {
   try {
     dispatch({ type: ALL_REVIEW_REQUEST });
-
-    const { data } = await axios.get(`/api/v1/reviews?id=${id}`);
-
-    dispatch({
-      type: ALL_REVIEW_SUCCESS,
-      payload: data.reviews,
-    });
+    const { data } = await api.get(`/reviews?id=${id}`);
+    dispatch({ type: ALL_REVIEW_SUCCESS, payload: data.reviews });
   } catch (error) {
     dispatch({
       type: ALL_REVIEW_FAIL,
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Failed to fetch reviews",
     });
   }
 };
 
-// Delete Review of a Book
 export const deleteReviews = (reviewId, bookId) => async (dispatch) => {
   try {
     dispatch({ type: DELETE_REVIEW_REQUEST });
-
-    const { data } = await axios.delete(
-      `/api/v1/reviews?id=${reviewId}&bookId=${bookId}`
+    const { data } = await api.delete(
+      `/reviews?id=${reviewId}&bookId=${bookId}`
     );
-
-    dispatch({
-      type: DELETE_REVIEW_SUCCESS,
-      payload: data.success,
-    });
+    dispatch({ type: DELETE_REVIEW_SUCCESS, payload: data.success });
   } catch (error) {
     dispatch({
       type: DELETE_REVIEW_FAIL,
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Failed to delete review",
     });
   }
 };
 
-// Clearing Errors
 export const clearErrors = () => async (dispatch) => {
-  dispatch({ type: CLEAR_ERRORS });
+  dispatch({ type: clearErrors });
 };
